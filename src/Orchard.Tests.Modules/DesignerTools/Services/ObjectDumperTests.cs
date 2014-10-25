@@ -464,5 +464,211 @@ namespace Orchard.Tests.Modules.DesignerTools.Services
            
             ComparareJsonObject(jObject, json);
         }
+
+
+        [Test]
+        public void DumpShape_DepthOne()
+        {
+            var objectDumper = new ObjectDumper(1);
+            var testShape = new TestShape
+            {
+                Metadata = new ShapeMetadata()
+                {
+                    Type = "TestContentType",
+                    DisplayType = "Detail",
+                    Alternates = new[] { "TestContentType_Detail", "TestContentType_Detail_2" },
+                    Position = "1",
+                    ChildContent = new HtmlString("<p>Test Para</p>"),
+                    Wrappers = new[] { "TestContentType_Wrapper" }
+                },
+                SomeInteger = 1337,
+                SomeBoolean = true,
+                SomeString = "Never gonna give you up"
+            };
+
+            testShape.Classes.Add("bodyClass1");
+            testShape.Classes.Add("bodyClass2");
+
+            testShape.Add("Child Item");
+
+            testShape.Attributes.Add(new KeyValuePair<string, string>("onClick", "dhtmlIsBad"));
+
+            var xElement = objectDumper.Dump(testShape, "Model");
+
+            Assert.Throws(typeof(NullReferenceException), () =>
+            {
+                var stringBuilder = new StringBuilder();
+                ObjectDumper.ConvertToJSon(xElement, stringBuilder);
+                var json = stringBuilder.ToString();
+            });
+        }
+
+        [Test]
+        public void DumpShape_DepthTwo()
+        {
+            var objectDumper = new ObjectDumper(2);
+            var testShape = new TestShape
+            {
+                Metadata = new ShapeMetadata()
+                {
+                    Type = "TestContentType",
+                    DisplayType = "Detail",
+                    Alternates = new[] { "TestContentType_Detail", "TestContentType_Detail_2" },
+                    Position = "1",
+                    ChildContent = new HtmlString("<p>Test Para</p>"),
+                    Wrappers = new[] { "TestContentType_Wrapper" }
+                },
+                SomeInteger = 1337,
+                SomeBoolean = true,
+                SomeString = "Never gonna give you up"
+            };
+
+            testShape.Classes.Add("bodyClass1");
+            testShape.Classes.Add("bodyClass2");
+
+            testShape.Add("Child Item");
+
+            testShape.Attributes.Add(new KeyValuePair<string, string>("onClick", "dhtmlIsBad"));
+
+            var xElement = objectDumper.Dump(testShape, "Model");
+
+            var stringBuilder = new StringBuilder();
+            ObjectDumper.ConvertToJSon(xElement, stringBuilder);
+            var json = stringBuilder.ToString();
+
+            var jObject = new JObject(
+                new JProperty("name", "Model"),
+                new JProperty("value", "TestContentType Shape"));
+
+            ComparareJsonObject(jObject, json);
+        }
+
+        [Test]
+        public void DumpShape_DepthThree()
+        {
+            var objectDumper = new ObjectDumper(3);
+            var testShape = new TestShape
+            {
+                Metadata = new ShapeMetadata()
+                {
+                    Type = "TestContentType",
+                    DisplayType = "Detail",
+                    Alternates = new[] { "TestContentType_Detail", "TestContentType_Detail_2" },
+                    Position = "1",
+                    ChildContent = new HtmlString("<p>Test Para</p>"),
+                    Wrappers = new[] { "TestContentType_Wrapper" }
+                },
+                SomeInteger = 1337,
+                SomeBoolean = true,
+                SomeString = "Never gonna give you up"
+            };
+
+            testShape.Classes.Add("bodyClass1");
+            testShape.Classes.Add("bodyClass2");
+
+            testShape.Attributes.Add(new KeyValuePair<string, string>("onClick", "dhtmlIsBad"));
+
+            var xElement = objectDumper.Dump(testShape, "Model");
+
+            var stringBuilder = new StringBuilder();
+            ObjectDumper.ConvertToJSon(xElement, stringBuilder);
+            var json = stringBuilder.ToString();
+
+            var jObject = new JObject(
+                new JProperty("name", "Model"),
+                new JProperty("value", "TestContentType Shape"),
+                new JProperty("children",new JArray(
+                    new JObject(
+                        new JProperty("name", "Classes"),
+                        new JProperty("value", "List&lt;String&gt;"),
+                        new JProperty("children", new JArray(
+                            new JObject(
+                                new JProperty("name", "[0]"),
+                                new JProperty("value", "&quot;bodyClass1&quot;")),
+                            new JObject(
+                                new JProperty("name", "[1]"),
+                                new JProperty("value", "&quot;bodyClass2&quot;"))))),
+                    new JObject(
+                        new JProperty("name", "Attributes"),
+                        new JProperty("value", "Dictionary&lt;String, String&gt;"),
+                        new JProperty("children", new JArray(
+                            new JObject(
+                                new JProperty("name", "[&quot;onClick&quot;]"),
+                                new JProperty("value", "&quot;dhtmlIsBad&quot;"))))),
+                    new JObject(
+                        new JProperty("name", "Items"),
+                        new JProperty("value", "List&lt;Object&gt;")))));
+
+            ComparareJsonObject(jObject, json);
+        }
+
+        [Test]
+        public void DumpShape_DepthFour()
+        {
+            //Note that Depth Four seems to double encode content
+
+            var objectDumper = new ObjectDumper(4);
+            var testShape = new TestShape
+            {
+                Metadata = new ShapeMetadata()
+                {
+                    Type = "TestContentType",
+                    DisplayType = "Detail",
+                    Alternates = new[] { "TestContentType_Detail", "TestContentType_Detail_2" },
+                    Position = "1",
+                    ChildContent = new HtmlString("<p>Test Para</p>"),
+                    Wrappers = new[] { "TestContentType_Wrapper" }
+                },
+                SomeInteger = 1337,
+                SomeBoolean = true,
+                SomeString = "Never gonna give you up"
+            };
+
+            testShape.Classes.Add("bodyClass1");
+            testShape.Classes.Add("bodyClass2");
+
+            testShape.Add("Child Item");
+
+            testShape.Attributes.Add(new KeyValuePair<string, string>("onClick", "dhtmlIsBad"));
+
+            var xElement = objectDumper.Dump(testShape, "Model");
+
+            var stringBuilder = new StringBuilder();
+            ObjectDumper.ConvertToJSon(xElement, stringBuilder);
+            var json = stringBuilder.ToString();
+
+            var jObject = new JObject(
+                new JProperty("name", "Model"),
+                new JProperty("value", "TestContentType Shape"),
+                new JProperty("children", new JArray(
+                    new JObject(
+                        new JProperty("name", "Classes"),
+                        new JProperty("value", "List&lt;String&gt;"),
+                        new JProperty("children", new JArray(
+                            new JObject(
+                                new JProperty("name", "[0]"),
+                                new JProperty("value", "&quot;bodyClass1&quot;")),
+                            new JObject(
+                                new JProperty("name", "[1]"),
+                                new JProperty("value", "&quot;bodyClass2&quot;"))))),
+                    new JObject(
+                        new JProperty("name", "Attributes"),
+                        new JProperty("value", "Dictionary&lt;String, String&gt;"),
+                        new JProperty("children", new JArray(
+                            new JObject(
+                                new JProperty("name", "[&quot;onClick&quot;]"),
+                                new JProperty("value", "&quot;dhtmlIsBad&quot;"))))),
+                    new JObject(
+                        new JProperty("name", "Items"),
+                        new JProperty("value", "List&lt;Object&gt;"),
+                        new JProperty("children", new JArray(
+                            new JObject(
+                                new JProperty("name", "[0]"),
+                                new JProperty("value", "&quot;Child Item&quot;"))))))));
+
+            var s = jObject.ToString();
+
+            ComparareJsonObject(jObject, json);
+        }
     }
 }
