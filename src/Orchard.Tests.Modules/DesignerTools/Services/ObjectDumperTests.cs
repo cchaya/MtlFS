@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
@@ -42,6 +43,12 @@ namespace Orchard.Tests.Modules.DesignerTools.Services
     [TestFixture]
     public class ObjectDumperTests
     {
+        private static void ComparareJsonObject(JObject expectedResult, string json) {
+            var objectDumperJson = JToken.Parse("{" + json + "}");
+
+            Assert.IsTrue(JToken.DeepEquals(expectedResult, objectDumperJson));
+        }
+
         [Test]
         public void DumpNull() {
             var objectDumper = new ObjectDumper(1);
@@ -56,12 +63,6 @@ namespace Orchard.Tests.Modules.DesignerTools.Services
                 new JProperty("value", "null"));
 
             ComparareJsonObject(jObject, json);
-        }
-
-        private static void ComparareJsonObject(JObject expectedResult, string json) {
-            var objectDumperJson = JToken.Parse("{" + json + "}");
-
-            Assert.IsTrue(JToken.DeepEquals(expectedResult, objectDumperJson));
         }
 
         [Test]
@@ -353,6 +354,114 @@ namespace Orchard.Tests.Modules.DesignerTools.Services
                     )
                 )));
 
+            ComparareJsonObject(jObject, json);
+        }
+
+        [Test]
+        public void DumpIShape_DepthOne() {
+            var objectDumper = new ObjectDumper(1);
+            var xElement = objectDumper.Dump(new TestIShape {
+                Metadata = new ShapeMetadata() {
+                    Type = "TestContentType",
+                    DisplayType = "Detail",
+                    Alternates = new[] { "TestContentType_Detail", "TestContentType_Detail_2" },
+                    Position = "1",
+                    ChildContent = new HtmlString("<p>Test Para</p>"),
+                    Wrappers = new[] { "TestContentType_Wrapper" }
+                },
+                SomeInteger = 1337,
+                SomeBoolean = true,
+                SomeString = "Never gonna give you up"
+            }, "Model");
+
+            Assert.Throws(typeof(NullReferenceException), () => {
+                var stringBuilder = new StringBuilder();
+                ObjectDumper.ConvertToJSon(xElement, stringBuilder);
+                var json = stringBuilder.ToString();
+            });
+        }
+
+        [Test]
+        public void DumpIShape_DepthTwo() {
+            var objectDumper = new ObjectDumper(2);
+            var xElement = objectDumper.Dump(new TestIShape {
+                Metadata = new ShapeMetadata() {
+                    Type = "TestContentType",
+                    DisplayType = "Detail",
+                    Alternates = new[] { "TestContentType_Detail", "TestContentType_Detail_2" },
+                    Position = "1",
+                    ChildContent = new HtmlString("<p>Test Para</p>"),
+                    Wrappers = new[] { "TestContentType_Wrapper" }
+                },
+                SomeInteger = 1337,
+                SomeBoolean = true,
+                SomeString = "Never gonna give you up"
+            }, "Model");
+
+            var stringBuilder = new StringBuilder();
+            ObjectDumper.ConvertToJSon(xElement, stringBuilder);
+            var json = stringBuilder.ToString();
+
+            var jObject = new JObject(
+                new JProperty("name", "Model"),
+                new JProperty("value", "TestContentType Shape"));
+
+            ComparareJsonObject(jObject, json);
+        }
+
+        [Test]
+        public void DumpIShape_DepthThree() {
+            var objectDumper = new ObjectDumper(3);
+            var xElement = objectDumper.Dump(new TestIShape {
+                Metadata = new ShapeMetadata() {
+                    Type = "TestContentType",
+                    DisplayType = "Detail",
+                    Alternates = new[] { "TestContentType_Detail", "TestContentType_Detail_2" },
+                    Position = "1",
+                    ChildContent = new HtmlString("<p>Test Para</p>"),
+                    Wrappers = new[] { "TestContentType_Wrapper" }
+                },
+                SomeInteger = 1337,
+                SomeBoolean = true,
+                SomeString = "Never gonna give you up"
+            }, "Model");
+
+            var stringBuilder = new StringBuilder();
+            ObjectDumper.ConvertToJSon(xElement, stringBuilder);
+            var json = stringBuilder.ToString();
+
+            var jObject = new JObject(
+                new JProperty("name", "Model"),
+                new JProperty("value", "TestContentType Shape"));
+
+            ComparareJsonObject(jObject, json);
+        }
+
+        [Test]
+        public void DumpIShape_DepthFour() {
+            var objectDumper = new ObjectDumper(4);
+            var xElement = objectDumper.Dump(new TestIShape {
+                Metadata = new ShapeMetadata() {
+                    Type = "TestContentType",
+                    DisplayType = "Detail",
+                    Alternates = new[] { "TestContentType_Detail", "TestContentType_Detail_2" },
+                    Position = "1",
+                    ChildContent = new HtmlString("<p>Test Para</p>"),
+                    Wrappers = new[] { "TestContentType_Wrapper" }
+                },
+                SomeInteger = 1337,
+                SomeBoolean = true,
+                SomeString = "Never gonna give you up"
+            }, "Model");
+
+            var stringBuilder = new StringBuilder();
+            ObjectDumper.ConvertToJSon(xElement, stringBuilder);
+            var json = stringBuilder.ToString();
+
+            var jObject = new JObject(
+                new JProperty("name", "Model"),
+                new JProperty("value", "TestContentType Shape"));
+           
             ComparareJsonObject(jObject, json);
         }
     }
